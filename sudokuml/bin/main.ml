@@ -79,7 +79,7 @@ let rec solve board col row =
   )
 
 
-let read_board file_name = 
+let _read_board file_name = 
   let ic = open_in file_name in
     let rec read_line ic =
       try
@@ -93,8 +93,36 @@ let read_board file_name =
   read_line ic
 
 
+let read_boards file_name = 
+  let ic = open_in file_name in
+  let rec read_board ic =
+    let rec read_line ic =
+      try
+        let line_str = input_line ic in
+        if line_str.[0] = '-' then []
+        else 
+          let line = List.map (fun x -> Char.code x - 48) (List.init (String.length line_str) (String.get line_str)) in
+          line :: read_line ic
+      with End_of_file -> [] in
+    match read_line ic with
+    | [] -> []
+    | board -> board :: read_board ic in
+  try
+    read_board ic
+  with End_of_file ->
+    close_in ic;
+    []
+
+
+let timed_solve board =
+  let () = _print_board board in
+  let start_time = Sys.time() in
+  let solved_board = solve board 0 0 in
+  let end_time = Sys.time() in
+  let () = _print_board solved_board in
+  print_float ((end_time -. start_time) *. 1000000.0)
+
+
 let () =
-  let board = read_board "./bin/game.txt" in 
-  let solved = solve board 0 0 in
-  let () = _print_board solved in
-  if solved = [] then (print_int 0) else (print_int 1)
+  let boards = read_boards "./bin/games.txt" in 
+  Array.iter (fun x -> timed_solve x) (Array.of_list boards)
