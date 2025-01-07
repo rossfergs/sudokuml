@@ -115,14 +115,22 @@ let read_boards file_name =
 
 
 let timed_solve board =
-  let () = _print_board board in
+  (* let () = _print_board board in *)
   let start_time = Sys.time() in
-  let solved_board = solve board 0 0 in
+  let _solved_board = solve board 0 0 in
   let end_time = Sys.time() in
-  let () = _print_board solved_board in
-  print_float ((end_time -. start_time) *. 1000000.0)
+  (* let () = _print_board solved_board in *)
+  let time = ((end_time -. start_time) *. 1000000.0) in
+  print_float time;
+  print_newline ();
+  time
 
 
 let () =
   let boards = read_boards "./bin/games.txt" in 
-  Array.iter (fun x -> timed_solve x) (Array.of_list boards)
+  let times = List.map (fun x -> timed_solve x) boards in
+  let sum = List.fold_left (fun a b -> a +. b) 0.0 times in
+  let average_time = sum /. (float_of_int (List.length times)) in
+  print_string "average time: "; print_float average_time;
+
+
